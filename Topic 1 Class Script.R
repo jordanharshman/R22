@@ -1,4 +1,4 @@
-# Input/Output ------------------------------------------------------
+# Input/Outputs ------------------------------------------------------
 
 23 
 23-19
@@ -137,3 +137,20 @@ mean(data)
 x.char <- as.character(c("Hi", "my", "name"))
 x.fac <- factor(c("Hi", "my", "name", "name"), 
                 levels = c("name", "my", "Hi"))
+
+
+
+# Absolute/Relative Coding ------------------------------------------------
+
+x <- sample(1:10, 239, replace = TRUE)
+# calculate proportion of obs that equal “2”
+sum(x==2)/239       # absolute
+sum(x==2)/length(x) # relative
+
+# add another obs (3), bringing total to 240
+x <- c(x, 3)
+sum(x==2)/239       # silent error, BAD!!!
+sum(x==2)/length(x) # all good b/c of relative coding
+
+
+
