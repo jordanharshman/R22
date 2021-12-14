@@ -1,0 +1,26 @@
+"","electionyear","presel.Date","winner","winnerparty","winnerparty.tmin1","winnerparty.tmin2","winnerparty.tmin3","winnerparty.tmin4","runnerup","runnerupparty","popvotepercmargin.rep","popvotepercmargin.rep.tmin1","turnoutperc","turnoutperc.tmin1","djia.reldiff","dispincome","dispincchange"
+"1",1920,1920-11-02,"Warren Harding","Rep.","Dem.","Dem.","Rep.","Rep.","James Cox","Dem.",26.17,-3.12,49.2,61.8,-19.28,NA,NA
+"2",1924,1924-11-04,"Calvin Coolidge","Rep.","Rep.","Dem.","Dem.","Rep.","John Davis","Dem.",25.22,26.17,48.9,49.2,21.86,NA,NA
+"3",1928,1928-11-06,"Herbert Hoover","Rep.","Rep.","Rep.","Dem.","Dem.","Al Smith","Dem.",17.41,25.22,56.9,48.9,145.01,NA,NA
+"4",1932,1932-11-08,"Franklin Roosevelt","Dem.","Rep.","Rep.","Rep.","Dem.","Herbert Hoover","Rep.",-17.76,17.41,56.9,56.9,-76.41,5306,NA
+"5",1936,1936-11-03,"Franklin Roosevelt","Dem.","Dem.","Rep.","Rep.","Rep.","Alf Landon","Rep.",-24.26,-17.76,61,56.9,193.37,6802,28.19
+"6",1940,1940-11-05,"Franklin Roosevelt","Dem.","Dem.","Dem.","Rep.","Rep.","Wendell Willkie","Rep.",-9.96,-24.26,62.4,61,-23.92,7464,9.73
+"7",1944,1944-11-07,"Franklin Roosevelt","Dem.","Dem.","Dem.","Dem.","Rep.","Thomas Dewey","Rep.",-7.5,-9.96,55.9,62.4,9.17,10109,35.44
+"8",1948,1948-11-02,"Harry Truman","Dem.","Dem.","Dem.","Dem.","Dem.","Thomas Dewey","Rep.",-4.48,-7.5,52.2,55.9,29.33,9425,-6.77
+"9",1952,1952-11-04,"Dwight Eisenhower","Rep.","Dem.","Dem.","Dem.","Dem.","Adlai Stevenson","Dem.",10.85,-4.48,62.3,52.2,42.41,10371,10.04
+"10",1956,1956-11-06,"Dwight Eisenhower","Rep.","Rep.","Dem.","Dem.","Dem.","Adlai Stevenson","Dem.",15.4,10.85,60.2,62.3,80.45,11502,10.91
+"11",1960,1960-11-08,"John Kennedy","Dem.","Rep.","Rep.","Dem.","Dem.","Richard Nixon","Rep.",-0.17,15.4,63.8,60.2,20.02,11877,3.26
+"12",1964,1964-11-03,"Lyndon Johnson","Dem.","Dem.","Rep.","Rep.","Dem.","Barry Goldwater","Rep.",-22.58,-0.17,62.8,63.8,49.6,13485,13.54
+"13",1968,1968-11-05,"Richard Nixon","Rep.","Dem.","Dem.","Rep.","Rep.","Hubert Humphrey","Dem.",0.7,-22.58,62.5,62.8,8.33,15728,16.63
+"14",1972,1972-11-07,"Richard Nixon","Rep.","Rep.","Dem.","Dem.","Rep.","George McGovern","Dem.",23.15,0.7,56.2,62.5,2.12,17821,13.31
+"15",1976,1976-11-02,"Jimmy Carter","Dem.","Rep.","Rep.","Dem.","Dem.","Gerald Ford","Rep.",-2.06,23.15,54.8,56.2,-0.25,19002,6.63
+"16",1980,1980-11-04,"Ronald Reagan","Rep.","Dem.","Rep.","Rep.","Dem.","Jimmy Carter","Dem.",9.74,-2.06,54.2,54.8,-2.99,20158,6.08
+"17",1984,1984-11-06,"Ronald Reagan","Rep.","Rep.","Dem.","Rep.","Rep.","Walter Mondale","Dem.",18.21,9.74,55.2,54.2,29.86,22480,11.52
+"18",1988,1988-11-08,"George H. W. Bush","Rep.","Rep.","Rep.","Dem.","Rep.","Michael Dukakis","Dem.",7.72,18.21,52.8,55.2,76.73,24826,10.44
+"19",1992,1992-11-03,"Bill Clinton","Dem.","Rep.","Rep.","Rep.","Dem.","George H. W. Bush","Rep.",-5.56,7.72,58.1,52.8,51.66,26133,5.26
+"20",1996,1996-11-05,"Bill Clinton","Dem.","Dem.","Rep.","Rep.","Rep.","Bob Dole","Rep.",-8.51,-5.56,51.7,58.1,84.6,27719,6.07
+"21",2000,2000-11-07,"George W. Bush","Rep.","Dem.","Dem.","Rep.","Rep.","Al Gore","Dem.",-0.51,-8.51,54.2,51.7,81,31524,13.73
+"22",2004,2004-11-02,"George W. Bush","Rep.","Rep.","Dem.","Dem.","Rep.","John Kerry","Dem.",2.46,-0.51,60.1,54.2,-7.75,34221,8.56
+"23",2008,2008-11-04,"Barack Obama","Dem.","Rep.","Rep.","Dem.","Dem.","John McCain","Rep.",-7.27,2.46,61.6,60.1,-7.31,36078,5.43
+"24",2012,2012-11-06,"Barack Obama","Dem.","Dem.","Rep.","Rep.","Dem.","Mitt Romney","Rep.",-3.86,-7.27,58.6,61.6,41.98,37180,3.05
+"25",2016,2016-11-08,"Donald Trump","Rep.","Dem.","Dem.","Rep.","Rep.","Hillary Rodham Clinton","Dem.",-2.1,-3.86,60.2,58.6,36.31,38954,4.77
