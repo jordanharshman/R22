@@ -1,0 +1,4 @@
+# R22
+CHEM 5450/6450 Spring 2022
+
+Class code and data will be posted here
