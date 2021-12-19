@@ -256,7 +256,7 @@ myfunction(x)
 # I.9 Packages ----------------------------------------------------------------
 
 # to work with other packages, first download the package using:
-#      install.package("tidyverse").
+#      install.package("tidyverse"). 
 # I'm keeping it commented out because we don't have to run this each time we run 
 # this particular script.
 
