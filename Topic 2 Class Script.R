@@ -266,9 +266,133 @@ copus %>%
 
 # Task 6 ------------------------------------------------------------------
 
-#s
-# Strings -----------------------------------------------------------------
 
+
+
+
+# II.5 Pivoting data ------------------------------------------------------
+copus %>% # take copus, then...
+  select(Broader, Lec:T_O) %>%     # select only the variables that need to be pivoted
+  pivot_longer(-Broader, "InsBeh") # pivot, noting that Broader is a "key" variable, name new variable "InsBeh"
+
+# summarize way:
+copus %>%
+  group_by(Broader) %>%          # group by Broader
+  summarize(across(L:T_O, mean)) # take average of 25 variables
+
+# using pivot:
+copus.l <- copus %>% # define into new object
+  select(Broader, CG:OG) %>%          # select only variables of interest
+  pivot_longer(-Broader, "GroupWork") # pivot into long form
+
+# plot: will discuss this in next topic
+ggplot(copus.l, aes(x = GroupWork, y = value, color = Broader)) +
+  geom_boxplot()
+
+# II.5 Missing data -------------------------------------------------------
+
+# Create some scores for 5 different tests
+test1 <- tibble(ID = rep(1:2, each = 4),
+                Test = c(1:3, 5, 1:2, 4:5),
+                Score = c(50, NA, 80, 75, 60, 40, 80, NA))
+
+test1 %>%
+  complete(ID, Test) # fill in all unique values that are missing but present for both IDs
+
+# II.6 Joining data ----------------------------------------
+
+# create two test tibbles of repeat admin
+test1 <- tibble(ID = 1:5,
+                Test1 = c(50,65,80,90,75))
+
+test2 <- tibble(ID = c(1:2,4:6),
+                Test2 = c(65,60,80,85,100))
+
+# Wrong way: do not use join functions:
+Test <- test1 %>%
+  mutate(Test2 = test2$Test2) # make a new variable with Test2 data
+# Silent error! Not aligned!
+
+test1 %>%
+  right_join(test2) # test1 is LEFT; test2 is RIGHT; doing a RIGHT join
+
+test1 %>%
+  left_join(test2)  # test1 is LEFT; test2 is RIGHT; doing a LEFT join
+
+test1 %>%
+  inner_join(test2) # test1 is LEFT; test2 is RIGHT; doing an INNER join
+
+test1 %>%
+  full_join(test2)  # test1 is LEFT; test2 is RIGHT; doing a FULL join
+
+test2 %>%
+  right_join(test1) # test1 is RIGHT; test2 is LEFT; doing a RIGHT join
+
+# create the dem object:
+dem <- copus %>%
+  select('Instructor ID':Layout) %>%
+  filter(Broader != "Biological")
+
+# create the res object:
+res <- copus %>%
+  select(`Instructor ID`:Year, L:Bcluster)
+
+res %>%
+  right_join(dem) # clearly, something very wrong happened here (79,234 observations?!)
+
+# What happened? Consider a simpler dataset from: https://stackoverflow.com/questions/49256920/left-join-in-r-dplyr-too-many-observations
+df1 <- data.frame(col1 = LETTERS[1:4],
+                  col2 = 1:4)
+df1
+df2 <- data.frame(col1 = rep(LETTERS[1:2], 2),
+                  col3 = 4:1)
+df2
+df1 %>%
+  left_join(df2) # 6 rows instead of expected 4
+
+# The purpose of this exercise was to get you to realize that you are asking for something
+# that doesn't make sense: Recall that some instructors were observed multiple times for the 
+# same class in the same semester and the same year, so all of these variables will not be unique
+# and thus you will generate a lot duplicated rows. To fix this, you will need to make your by =
+# argument completely unique by adding a variable that describes which observation it was. That
+# variable doesn't currently exist in the data. There is a quick and dirty way to add this that
+# works in this case, but more thought would need to be required before you assume that this would
+# work in all cases:
+
+copus.obs <- copus %>%
+  mutate(Obs = 1:n())  # just add unique identifier for each row
+
+# create the dem object:
+dem <- copus.obs %>%
+  select(Obs, 'Instructor ID':Layout) %>%
+  filter(Broader != "Biological")
+
+# create the res object:
+res <- copus.obs %>%
+  select(Obs, L:Bcluster)
+
+# now I'm ready to join:
+
+# 2,008 observations (if bio faculty aren't found, they get NA)
+res %>%
+  left_join(dem)
+
+# 1,417 observations (no bio faculty present)
+res %>%
+  right_join(dem)
+
+# 591 observations (no bio faculty present). None of our joins will work because
+# the bio faculty aren't in the dem data set and aren't separated in the res data.
+# We need to filter the res data to just keep the bio faculty, but Broader isn't 
+# currently in that data. Join them to get the demographics, then filter just the
+# bio faculty.
+res %>%
+  left_join(dem) %>%     # joins the data, adding the Broader variable
+  filter(is.na(Broader)) # anyone with NA is a bio faculty here
+
+
+
+# II.7 Strings -----------------------------------------------------------------
 
 string1 <- "This is a string"
 string2 <- 'If I want to include a "quote" inside a string, I use single quotes'
@@ -292,7 +416,6 @@ w5 <- "on!"
 w6 <- NA
 
 str_length(x)    # compute string lengths for all indices
-str_length(x)[1] # compute string lengths for just first index
 str_length(w1)   # alternative
 
 paste(w1, w2, w3, w4, w5, w6) # combine multiple strings into 1
@@ -305,7 +428,7 @@ str_c(x, collapse = " ") #alternative, except how it handles NA
 # PREDICT: Strings are still vectorized. What will this do?
 str_c("Hey!", x)
 
-x <- x[!is.na(x)] # get rid of all NA's (! means "is not")
+x <- x[!is.na(x)] # get rid of all NA's
 
 str_sub(x, 1, 3)   # subset first three letters of each index
 str_sub(x, -3, -1) # subset last three letters of each index
@@ -314,7 +437,7 @@ str_to_lower(x) # all lowercase
 str_to_upper(x) # all uppercase
 
 str_sort(x) # alphabetize
-str_sort(x, locale = "Haw") # alphebetize to the Hawaiian alphebet
+str_sort(x, locale = "Haw") # alphabetize to the Hawaiian alphabet
 
 # Matching characters in a string
 
@@ -333,5 +456,76 @@ x <- str_c(x, collapse = " ") # collapse the vector of strings into 1 string
 str_split(x, " ") # split each into an index in one vector, returns as a list
 str_split(x, " ", simplify = TRUE) # alternative, no list, but as matrix
 unlist(str_split(x, " ")) # alternative, no list, but as vector
+
+# Instead of having all demographics spread across 8 variables, paste them all into 1.
+# There is some wonkiness here though. The layout SHOULD be simple:
+copus %>%
+  mutate(Dem = str_c(`Instructor ID`:Layout, sep = "-")) # error
+
+# This really stumped me when I ran it because it looks like it should run. Turns out,
+# str_c was not designed be used in conjunction with the dyplyr select(), so it doesn't
+# recognized the : indicates dplyr::select(). One way around this would be to hand-type
+# all variables:
+
+copus %>%
+  mutate(Dem = str_c(`Instructor ID`, `Course ID`, Semester, Year, Broader, Level, Size, Layout, sep = "-")) %>%
+  select(Dem)
+
+# But this is still problematic; a lot of typing and if any NA are present, it provides
+# NA for entire variable. Unite() is probably better as it understands select() and handles
+# NA in the desired way:
+
+copus %>%
+  unite(Dem, `Instructor ID`:Layout, remove = FALSE, sep = "-") %>% # remove = T if you want
+  select(Dem)
+
+# II.8 Factors ------------------------------------------------------------
+
+copus <- copus %>%
+  mutate(Level = recode(Level, # instead of if_else(), this is great for bulk recoding
+                        "100" = "Freshman",
+                        "200" = "Sophomore",
+                        "300" = "Junior",
+                        "400" = "Senior"))
+sort(unique(copus$Level)) # sort the unique values of Level
+
+mod <- aov(Lec ~ Level, data = copus) # define anova model, Lec = DV; Level = IV
+TukeyHSD(mod) # posthoc tests occur in alphabetical order
+
+# make boxplot by Level, will discuss later
+ggplot(copus, aes(x = Level, y = Lec)) +
+  geom_boxplot()
+
+copus <- copus %>%
+  mutate(Level = factor(Level, levels = c("Freshman", "Sophomore", "Junior", "Senior", "Cross-listed", "Graduate")))
+
+mod <- aov(Lec ~ Level, data = copus) # define anova model, Lec = DV; Level = IV
+TukeyHSD(mod) # posthoc tests occur in order set by factor now
+
+# make boxplot by Level, will discuss later
+ggplot(copus, aes(x = Level, y = Lec)) +
+  geom_boxplot()
+
+copus$Level    # prints levels of the factor by default
+copus$Level[1] # prints levels of the factor by default
+
+# They are also locked, so if I try to rewrite over one of them, it has to be with one of
+# the existing factors:
+
+copus$Level[1] <- "Other" # generates NA because term is not a factor
+copus$Level[1] # prove it
+copus$Level[1] <- "Cross-listed" # set it back to original
+
+levels(copus$Level) # tell me what levels of the factor are recognized
+fct_relevel(copus$Level, "Sophomore", "Junior", "Senior", 
+            "Cross-listed", "Graduate", "Freshman") # relevel a factor
+fct_infreq(copus$Level) # reorder levels by most common
+fct_inorder(copus$Level) # reorder levels by order they appear in the data
+fct_rev(copus$Level) # reverse levels order
+fct_expand(copus$Level, "Awesome R Courses") # add a level to factor
+fct_drop(copus$Level) # drops any unused levels, like "Awesome R Course"
+
+
+
 
 
