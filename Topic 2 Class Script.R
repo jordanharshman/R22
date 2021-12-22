@@ -35,18 +35,18 @@ largedf.t <- as_tibble(largedf)
 
 
 # II.3 Importing data -----------------------------------------------------
-setwd("C:/Users/Jordan/Desktop") # makes Desktop wd (windows)
-setwd("/Jordan/Desktop") # makes Desktop wd (mac)
+setwd("C:/Users/jth0083/Desktop") # makes Desktop wd (windows)
+setwd("/jth0083/Desktop") # makes Desktop wd (mac)
 
-setwd("C:/Users/Jordan/Documents") # makes Documents wd (windows)
-setwd("/Jordan/Documents") # makes Documents wd (mac)
+setwd("C:/Users/jth0083/Documents") # makes Documents wd (windows)
+setwd("/jth0083/Documents") # makes Documents wd (mac)
 
 # This is MY working directy and I HIGHLY DOUBT it will work for you, unless
-# your user profile just happens to be "Jordan" or "jth0083" and you just 
+# your user profile just happens to be "jth0083" or "jth0083" and you just 
 # happen to have a folder called "R22" inside of a folder called "CHEM 6450
 # Spring 2022" inside of a folder called "Teaching" inside of a folder called 
 # "Box" in your user folder! If you do, you have problems...
-setwd("C:/Users/Jordan/Box/Teaching/CHEM 6450 Spring 2022/R22") 
+setwd("C:/Users/jth0083/Box/Teaching/CHEM 6450 Spring 2022/R22") 
 
 getwd() # verify working directory
 
@@ -65,6 +65,10 @@ library(readxl) # load the package, need to install.package("readxl") first
 copus_excel <- read_excel("data/COPUS.xlsx") # error, can't find function
 # note the warnings: it saw numeric values and was expecting numerics, but got 
 # character "NA" instead. 
+
+# can also pull data straight from online, although not always practical for your own data
+copus <- read_csv("https://github.com/jordanharshman/R22/blob/main/data/COPUS.csv") # wrong URL
+copus <- read_csv("https://raw.githubusercontent.com/jordanharshman/R22/main/data/COPUS.csv") # raw
 
 rm(copus.csv, copus_csv, copus_excel) # remove clutter
 
@@ -94,9 +98,13 @@ copus.m <- copus[copus$Year == 2014 | copus$Year == 2015, ] # base
 copus.m <- filter(copus, Broader == "Biological", Size == "Large") # tidy
 copus.m <- copus[copus$Broader == "Biological" | copus$Size == "Large", ] # base
 
-#Keep only those for whom we know the Year, Semester, and Broader discipline (no NA’s)
+# Keep only those for whom we know the Year, Semester, and Broader discipline (no NA’s)
 copus.m <- filter(copus, !is.na(Year) & !is.na(Semester) & !is.na(Broader)) # tidy
 copus.m <- copus[!is.na(copus$Year) & !is.na(copus$Semester) & !is.na(copus$Broader), ] # base
+
+# Keep only those with Lec between 50% and 75%
+copus.m <- filter(copus, between(Lec, 50, 75)) # tidy
+copus.m <- copus[copus$Lec >= 50 & copus$Lec <= 75, ] # base
 
 # Task 1 ------------------------------------------------------------------
 
@@ -262,7 +270,9 @@ copus %>%
   mutate(Lec.c = Lec - mean(Lec)) %>% # create centered variable, then...
   group_by(Broader) %>% # group by discipline, then...
   summarize(AvgCenLec = mean(Lec.c)) # compute averages by group
-  
+
+copus <- copus %>%
+  ungroup() # end this section by ungrouping as it could affect code later on
 
 # Task 6 ------------------------------------------------------------------
 
@@ -312,6 +322,12 @@ test2 <- tibble(ID = c(1:2,4:6),
 Test <- test1 %>%
   mutate(Test2 = test2$Test2) # make a new variable with Test2 data
 # Silent error! Not aligned!
+
+# Joining data like this, "by index", is DANGEROUS! It is very easy to forget
+# that you (intentionally or byproduct of a function) rearranaged your data and
+# if you simply mutate another variable, you need to first ensure that the common
+# variables are aligned. Using the join() family prevents this by checking it
+# automatically.
 
 test1 %>%
   right_join(test2) # test1 is LEFT; test2 is RIGHT; doing a RIGHT join
@@ -525,7 +541,122 @@ fct_rev(copus$Level) # reverse levels order
 fct_expand(copus$Level, "Awesome R Courses") # add a level to factor
 fct_drop(copus$Level) # drops any unused levels, like "Awesome R Course"
 
+# II.9 Modeling -----------------------------------------------------------
 
+# RQ: Does amount of lecture (Lec) predict the amount of listening (L)? 
+mod1 <- lm(L ~ Lec, data = copus) # linear model (lm) between L by Lec
+mod1 # provides limited information
+summary(mod1) # provides suggested information you will need to interpret the model
+names(mod1)   # all objects you can access now stored in mod1
 
+mod1$coefficients # see just the coefficients; already printed in summary
+mod1$residuals    # full list of residuals (error) for each observation, not printed in summary
+
+# Here's a plot of the linear relationship we are modeling:
+ggplot(copus, aes(x = Lec, y = L)) +
+  geom_point() +
+  geom_point(data = copus[1:2,], color = "red", size = 7) +
+  geom_smooth(method = "lm")
+
+# look at individual residuals:
+copus %>%
+  select(L, Lec) %>% # select only 2 modeled variables
+  .[1:2, ]           # base way to return only the first two rows
+
+# The slope-intercept equation is:
+# L = (0.5514462)*Lec + 45.7570078
+# So, for obs 1 & 2, the predicted L values should be:
+(0.5514462 * 60.5) + 45.7570078 # = 79.1195 predicted L for Obs 1
+(0.5514462 * 23.3) + 45.7570078 # = 58.6057 predicted L for Obs 2
+
+# If that is the predicted, we can take the actual minus the predicted to find the residuals:
+60.5 - 79.1195 # = -18.6195 residual for Obs 1
+80 - 58.6057 # = 21.3943 residual for Obs 2
+mod1$residuals[1:2] # these numbers have already been computed for us and stored in mod1
+mod1$fitted.values[1:2]  # can also easily calculated predicted values
+
+# The real power of R comes in the ease to incorporate this object back into the data frame
+# for further manipulation and analysis. Let's look at the overall residual analysis, found
+# in the base plot of the model:
+plot(mod1)
+
+# That's great, but is there any evidence that our model fits all disciplines equally?
+# We have all the residuals at our disposal, so it's relatively easy to investigate this.
+mod1.res <- copus %>%
+  mutate(Residuals = mod1$residuals) # add in the residuals, which are in the same order
+
+# plot results
+ggplot(mod1.res, aes(x = Broader, y = Residuals)) +
+  geom_boxplot()
+
+# Seem to slightly under-predicting chemistry and biology while perhaps over-predicting
+# math. Quite subjective, but helpful. 
+
+# That was fun! What else is stored in mod1? See the documentation under "Values" to determine
+# what is being presented to you in each of the commands:
+?lm # see "Values" section which provides details about the values being provided
+mod1$df.residual
+mod1$call
+mod1$model
+
+# ANOVA context of modeling. First, look at a plot to get a sense of if the model will
+# be significant or not:
+ggplot(copus, aes(x = Size, y = Lec)) + 
+  geom_boxplot() 
+
+mod2 <- aov(Lec ~ Size, data = copus) # model anova between Lec (DV) and Size (IV)
+summary(mod2) # all APA reporting needs
+names(mod2)   # see what objects are available
+?aov          # "Values" section is a bit sparse, so we're out of luck! found this online though:
+              # https://docs.tibco.com/pub/enterprise-runtime-for-R/4.4.0/doc/html/Language_Reference/stats/aov.object.html
+
+# Normally we think of anova as separate from linear models, but really they are the same.
+mod3 <- lm(Lec ~ Size, data = copus) # define as linear model
+summary(mod3)                        # print summary
+mod2$coefficients # compare to the coefs of mod2
+mod3$coefficients # same thing for mod3
+
+# What is a residual in an anova? Plot to see predicted average per group:
+pred.avg <- tibble(Size = c("Small", "Medium", "Large", NA),
+                   Lec = mod2$fitted.values[c(1, 86, 94, 106)])
+ggplot(copus, aes(x = Size, y = Lec)) + 
+  geom_boxplot() +
+  geom_jitter() + 
+  geom_point(data = pred.avg, color = "red", size = 7)
+
+# Let's copy the code above and replace it to see how the residuals line up across class sizes:
+mod2.res <- copus %>%
+  mutate(Residuals = mod2$residuals) # why didn't this work?
+
+# ANOVA has to eliminate all missing values, it told us as much in the summary:
+# "255 observations deleted due to missingness"
+# We will have to do the same:
+mod2.res <- copus %>%
+  filter(!is.na(Size), !is.na(Lec)) %>%
+  mutate(Residuals = mod2$residuals) # why didn't this work?
+
+# plot results
+ggplot(mod2.res, aes(x = Size, y = Residuals)) +
+  geom_boxplot()
+
+# Model is under-predicting across the board, but it's more prominent the smaller the class size.
+
+# RQ: Does the interaction of Size and Layout of a classroom predict the amount of lecturing (Lec)?
+# First, let's clean up Layout to get only categories of Fixed, Flexible, and NA:
+copus.lay <- copus %>%
+  mutate(Layout = if_else(Layout != "Fixed", "Flexible", Layout))
+
+# Then, visualize results:
+ggplot(copus.lay, aes(x = Size, y = Lec)) +
+  geom_boxplot() +
+  facet_wrap(~Layout)
+
+# run the model:
+mod4 <- aov(Lec ~ Size + Layout, data = copus.lay) # just want main effects, no interactions
+mod5 <- aov(Lec ~ Size + Layout + Size:Layout, data = copus.lay) # want main effects and interactions
+mod5 <- aov(Lec ~ Size*Layout, data = copus.lay) # shorthand for all main effects and interactions
+
+# we'll just interpret mod5:
+summary(mod5) # Results: main effects significant; interaction not significant
 
 
