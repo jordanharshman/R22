@@ -1,7 +1,7 @@
 # I.2 Workflow in R -------------------------------------------------------
 
-# Input the the number 23 (technically, we are inputing a vector with length 1
-# that is numberic with the first and only element being 23)
+# Input the the number 23 (technically, we are inputting a vector with length 1
+# that is numeric with the first and only element being 23)
 
 23 # print the number
 "Hello World!" # print the characters
@@ -28,10 +28,9 @@ x*y
 x/y
 (x/y)^4
 
-#PREDICT: After you define z and then redefine y, will the value of z change?
+# PREDICT: After you define z and then redefine y, will the value of z change?
 z <- x-y
 y <- 11
-z <- x-y
 z
 
 
