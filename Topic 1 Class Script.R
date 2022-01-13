@@ -1,10 +1,13 @@
 # I.2 Workflow in R -------------------------------------------------------
 
+# type whatever you want
+
 # Input the the number 23 (technically, we are inputting a vector with length 1
 # that is numeric with the first and only element being 23)
 
 23 # print the number
 "Hello World!" # print the characters
+'Hello World'
 
 # I.3 Mathematical Operations ---------------------------------------------
 1+1   # addition
@@ -15,8 +18,12 @@
 (4-2)^2 # exponents
 4-2^2   # check order of operations
 sqrt(4) # square-root, need to run a function
+4^.5
+4^(1/2)
 
 # I.4 Object Definition ---------------------------------------------------
+x
+
 x <- 13 # defined as
 x # print object contents
 print(x) # same as above
@@ -32,7 +39,7 @@ x/y
 z <- x-y
 y <- 11
 z
-
+ 
 
 # I.5 Vectors -------------------------------------------------------------
 x <- c(21,24,32,30,22,24,26,28,28,29,20) # define a numeric vector of length 11
