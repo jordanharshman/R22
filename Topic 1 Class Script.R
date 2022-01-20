@@ -28,16 +28,25 @@ x <- 13 # defined as
 x # print object contents
 print(x) # same as above
 
+# Jan 13
+
 y <- 10 # define y
 x-y     # call x, take it's contents and call y, subtract it's contents from x
+x <- c(10, 13)
+x
+x <- 1:100
+x
+x
+x <- 13
+
 x+y     
 x*y
 x/y
 (x/y)^4
 
 # PREDICT: After you define z and then redefine y, will the value of z change?
-z <- x-y
 y <- 11
+z <- x-y
 z
  
 
@@ -55,20 +64,31 @@ x + x # add length 11 vector to itself and return length 11 vector
 x - y
 y <- c(10, 20)
 x - y
+x[12] <- 20
+x - y
+
 test.scores <- sample(50:100, 500, replace = TRUE)
 test.scores <- test.scores - 75
 
+sample(1:1000, 1)
+set.seed(42)
+sample(1:1000, 1)
+sample(1:1000, 1)
+
 x <- 1   # numeric
 x <- "1" # character
+x + 1
 x <- factor("1") # factor
 x <- as.logical(1)
+
+# Jan 18
 
 # Replacing elements based on index
 x <- c(1,2,1,1,2,1,3,1,3,2)
 x[6] <- 31      # redefine the 6th element as 31
+x
 
 # Replacing elements based on criteria
-x
 x == 1          # check if each element is equal to 1
 x[x == 1]       # return element where each index was T
 x[x == 1] <- 0  # replace each element where index was T
@@ -76,10 +96,12 @@ x
 
 x <- c(1,2,1,1,2,1,3,1,3,2)
 x == 1 | x == 2 # spell out each condition separately by "|" to mean "or"
+x[x == 1 | x == 2] <- 0
 x %in% c(1, 2)  # alternative: which elements IN x are equal to either 1 or 2
 
 # I. 6 Basics of Functions -----------------------------------------------------
 ?mean # see documentation
+??mean # searhc for function with "mean" in it
 mean  # see what the function does
 methods(mean) # see more on what the function does (if setup this way)
 mean.default  # same as above
@@ -87,12 +109,15 @@ mean(x = x, trim = 0, na.rm = FALSE) # mean with all defaults
 mean(x = test.scores, trim = 0, na.rm = FALSE) # change out what to compute
 mean(x = x) # accept all defaults without writing them
 mean(x)     # accept all defaults without even defining the first argument
+mean(test.scores)
 
 # PREDICT: How will the following lines change the resulting average calculation?
 mean(x, trim = .1)
 mean(x, .1)
+mean(test.scores)
+mean(test.scores, trim = 0.1)
 mean(x, na.rm = TRUE)
-x[2] <- NA
+x[2] <- NA # NA, not "NA"
 mean(x)
 mean(x, na.rm = TRUE)
 
