@@ -128,6 +128,8 @@ mean(data) # no trim
 mean(data, trim = 0.025) # trim outlying 0.025 percentile
 mean(data, trim = 2.5)   # trim outlying 2.5 percentile
 
+# Jan 20
+
 # Task 1 ------------------------------------------------------------------
 
 
