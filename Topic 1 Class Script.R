@@ -132,8 +132,18 @@ mean(data, trim = 2.5)   # trim outlying 2.5 percentile
 
 # Task 1 ------------------------------------------------------------------
 
-
-
+dat <- sample(1:10, 100, replace = TRUE)
+sort(dat)
+sort(dat, decreasing = TRUE)
+table(dat)
+length(unique(dat)) # 1 way
+dat.un <- unique(dat) #2nd way
+length(dat.un)
+dat[42]
+dat[sample(1:length(dat), 50)]
+sample(dat, 50)
+dat[seq(from = 2, to = 100, by = 2)]
+dat == 4
 # I.7 Coding Principles ---------------------------------------------------
 
 # Errors
@@ -152,6 +162,8 @@ mean("x", trim = .1)
 # Want: sample 1:100 WITH replacement:
 sample(1:100, 100) # worked, no errors, but was not what we intended
 sample(1:100, 100, replace = TRUE)
+
+#Jan 25
 
 # Alternatives
 # PREDICTION: All of the following are ways to calculate the average of the data vector 
