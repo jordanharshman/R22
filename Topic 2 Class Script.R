@@ -26,6 +26,8 @@ df$V1[5]    # first variable by name, 5th element
 df[5 , 1] <- 4  # rewrite first variable by index, 5th row
 df$V1[5] <- 4   # rewrite first variable by name, 5th element
 
+#Jan 27
+
 df.t <- as_tibble(df)
 df
 df.t
@@ -33,13 +35,12 @@ df.t
 largedf <- data.frame(matrix(sample(1:10, 10000, replace = TRUE), nrow = 100))
 largedf.t <- as_tibble(largedf)
 
-
 # II.3 Importing data -----------------------------------------------------
 setwd("C:/Users/jth0083/Desktop") # makes Desktop wd (windows)
-setwd("/jth0083/Desktop") # makes Desktop wd (mac)
+# setwd("/jth0083/Desktop") # makes Desktop wd (mac)
 
 setwd("C:/Users/jth0083/Documents") # makes Documents wd (windows)
-setwd("/jth0083/Documents") # makes Documents wd (mac)
+# setwd("/jth0083/Documents") # makes Documents wd (mac)
 
 # This is MY working directy and I HIGHLY DOUBT it will work for you, unless
 # your user profile just happens to be "jth0083" or "jth0083" and you just 
@@ -56,8 +57,8 @@ getwd() # verify working directory
 # I can easily access scripts stored in this parent directory.
 
 # reading .csv files
-copus.csv <- read.csv("data/COPUS.csv") # base R way
-copus_csv <- read_csv("data/COPUS.csv") # tidy way
+copus.csv <- read.csv("COPUS.csv") # base R way
+copus_csv <- read_csv("COPUS.csv") # tidy way
 
 # reading .xlsx files
 copus_excel <- read_excel("data/COPUS.xlsx") # error, can't find function
@@ -70,24 +71,38 @@ copus_excel <- read_excel("data/COPUS.xlsx") # error, can't find function
 copus <- read_csv("https://github.com/jordanharshman/R22/blob/main/data/COPUS.csv") # wrong URL
 copus <- read_csv("https://raw.githubusercontent.com/jordanharshman/R22/main/data/COPUS.csv") # raw
 
+copus.csv <- read.csv("~/COPUS.csv")
+New.Raw.Final <- read.csv("C:/Users/jth0083/Box/Publications/Grad Elements/Data/New Raw Final.csv", header=FALSE, comment.char="#")
+setwd("C:/Users/jth0083/Box/Publications/Grad Elements/Data")
+New.Raw.Final <- read.csv("New Raw Final.csv")
+Old.Raw.Final <- read.csv("Old Raw.csv")
+
+copus_csv <- read_csv("~/COPUS.csv")
+copus_xlsx <- read_excel("~/COPUS.xlsx")
+
 rm(copus.csv, copus_csv, copus_excel) # remove clutter
 
-copus <- read_csv("data/COPUS.csv") # tidy way
+copus <- read_csv("~/COPUS.csv") # tidy way
 
 # Exporting data
-write_csv(copus, "data/COPUSmod.csv") # exports as .csv file to your default directory
-save.image("data/copus.RData") # exports all objects as .RData
+write_csv(copus, "COPUSmod.csv") # exports as .csv file to your default directory
+save.image("copus.RData") # exports all objects as .RData
 rm(list = ls()) # remove all objects in your environment
-load("data/copus.RData") # brings everything back in
+load("copus.RData") # brings everything back in
 
 # IMPORTANT: if you export an environment with a silent error, you will import 
 # it back in with that error. It is usually better to not save.image and instead
 # do a fresh import of raw data and manipulation each time unless the code takes
 # too long to run. 
 
+rm(list = ls())
+copus <- read_csv("C:/Users/jth0083/Box/Teaching/CHEM 6450 Spring 2022/R22/data/COPUS.csv")
+
 # II.4 Filter ----------------------------------------------------------
 copus.m <- filter(copus, Year > 2013) # tidy
 copus.m <- copus[copus$Year > 2013 , ] # base, but didn't get the same result
+
+# Feb 1
 
 # Keep only obs from 2014 or 2015
 copus.m <- filter(copus, Year == 2014 | Year == 2015) # tidy
@@ -98,16 +113,34 @@ copus.m <- copus[copus$Year == 2014 | copus$Year == 2015, ] # base
 copus.m <- filter(copus, Broader == "Biological", Size == "Large") # tidy
 copus.m <- copus[copus$Broader == "Biological" | copus$Size == "Large", ] # base
 
-# Keep only those for whom we know the Year, Semester, and Broader discipline (no NA’s)
+# Keep only those for whom we know the Year, Semester, and Broader discipline (no NA's)
 copus.m <- filter(copus, !is.na(Year) & !is.na(Semester) & !is.na(Broader)) # tidy
 copus.m <- copus[!is.na(copus$Year) & !is.na(copus$Semester) & !is.na(copus$Broader), ] # base
 
 # Keep only those with Lec between 50% and 75%
 copus.m <- filter(copus, between(Lec, 50, 75)) # tidy
+copus.m <- filter(copus, Lec >= 50, Lec <= 75)
 copus.m <- copus[copus$Lec >= 50 & copus$Lec <= 75, ] # base
 
 # Task 1 ------------------------------------------------------------------
 
+# 1
+copus.chem <- filter(copus, Broader == "Chemical")
+mean(copus.chem$Lec, na.rm = T)
+length(unique(copus.chem$Instructor.ID))
+nrow(copus.chem)
+
+# 2
+copus.chem.l <- filter(copus.chem, Size == "Large")
+mean(copus.chem.l$Lec, na.rm = TRUE)
+copus.chem.s <- filter(copus.chem, Size == "Small")
+mean(copus.chem.s$Lec, na.rm = TRUE)
+
+# 3
+copus.bio <- filter(copus, Broader == "Biological")
+table(copus.bio$Bcluster) / nrow(copus.bio) * 100
+
+# Feb 3
 
 # II.4 Arrange ------------------------------------------------------------
 # Arrange the data according from increasing to decreasing lecture (Lec)
@@ -126,6 +159,9 @@ copus.m <- copus[with(copus, order(Year, Semester, Broader)), ] # base alternati
 
 # Task 2 ------------------------------------------------------------------
 
+nrow(copus) / 4
+copus.L <- arrange(copus, Lec)
+copus.L$Lec[502 * 1:3]
 
 # II.4 Select -------------------------------------------------------------
 # Select only the class size (Size) and lecture amount (Lec) variables.
@@ -162,7 +198,15 @@ df.m <- select(df, num_range("V", 1:4))
 
 # Task 3 ------------------------------------------------------------------
 
+#1
+select(copus, Lec, Lec)
 
+#2
+select(copus, Lec, L)
+select(copus, "Lec", "L")
+select(copus, c("Lec", "L"))
+vars <- c("Lec", "L")
+select(copus, vars) # use all_of() here
 
 # II.4 Mutate -------------------------------------------------------------
 # Create a variable that converts Lec to proportion instead of percent.
@@ -190,6 +234,9 @@ copus.m <- mutate(copus.m, AGW = mean(c(CG, WG, OG))) # perfection
 copus.m <- mutate(copus, AGW = rowMeans(select(copus, CG, WG, OG))) # alternative
 copus.m <- copus # base
 copus.m$AGW <- rowMeans(copus[ , names(copus) %in% c("CG", "WG", "OG")]) # base
+copus.m <- ungroup(copus.m)
+
+# Feb 8
 
 # Make a variable call “ChemBio” that is the discipline except chemistry and 
 # biology are combined into chembio and everyone else is the same
@@ -198,7 +245,7 @@ copus.m <- mutate(copus, ChemBio = if_else(
                   "ChemBio", # change to ChemBio if true
                   Broader)) # leave it alone if false, tidy
 table(copus.m$Broader, copus.m$ChemBio) # check if it worked as intended
-copus.m <- copus
+copus.m <- copus # base R
 copus.m$ChemBio <- ifelse(copus$Broader == "Biological" | copus$Broader == "Chemical", # if bio or chem
                            "ChemBio", # change to ChemBio if true
                            copus$Broader) # leave it alone if false, base
