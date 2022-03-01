@@ -253,16 +253,30 @@ table(copus.m$Broader, copus.m$ChemBio) # check if it worked as intended
 
 # Task 4 ------------------------------------------------------------------
 
+#1
+copus.m <- mutate(copus, LM = if_else(Size == "Large" | Size == "Medium",
+                  "Large-Medium",
+                  Size))
+mean(copus.m$Lec)
+
+copus.lm <- filter(copus.m, LM == "Large-Medium")
+mean(copus.lm$Lec)
+
+mean(copus.m$Lec[copus.m$LM == "Small"], na.rm = TRUE)
+
+# 2
+copus.m <- mutate(copus, Dif = T_PQ - S_Anq)
+arrange(copus.m, Dif)
 
 # II.4 Summarize ----------------------------------------------------------
-# or summarise for our British friends, both work :)
+# or summarize for our British friends, both work :)
 
 # Compute the average Lec for each Broader discipline.
 copus <- group_by(copus, Broader) # tidy
 summarize(copus, Avg = mean(Lec)) # tidy
 aggregate(copus$Lec, by = list(lecture = copus$Broader), mean) # base
 
-# Compute percent of sample in each discipline (Broader)
+# Compute proportion of each discipline (Broader)
 copus <- group_by(copus, Broader) # already grouped, but good to get in the habbit
 summarize(copus, Count = n()) # gives count, not percent
 summarize(copus, Count = n()/n()) # that didn't work, silent error
@@ -270,7 +284,7 @@ summarize(copus, Count = n()/sum(n())) # nope, still working only by grouping va
 disciplines <- summarize(copus, Count = n()) # store to object (still grouped)
 mutate(disciplines, Percent = Count / sum(Count) * 100) #... okay, I guess
 table(copus$Broader) / nrow(copus) * 100 # base, returns named vector instead of tibble
-
+copus <- ungroup(copus)
 # When data are grouped, summarize will only operate within those groups, so if 
 # there are 8 groups, summarize will always return a vector of length 8 and any
 # function applied will be applied to each of those 8 separately. Mutate, works
@@ -286,8 +300,16 @@ aggregate(copus$Lec, by = list(Size = copus$Size), min)  # base
 aggregate(copus$Lec, by = list(Size = copus$Size), max)  # base
 aggregate(copus$Lec, by = list(Size = copus$Size), mean) # base
 
+copus <- ungroup(copus)
+summarize(copus,               # tidy
+          Min = min(Lec),      # min
+          Max = max(Lec),      # max
+          Avg = mean(Lec))     # mean
+
+# Feb 10
+
 copus <- group_by(copus, Semester, Year) # group by semester & year
-summarize(copus, Avg = median(Lec))
+summarize(copus, Med = median(Lec))
 aggregate(copus$Lec, by = list(Semester = copus$Semester, Year = copus$Year), mean)  # base
 
 # Compute the distribution of classroom Layout for each of the three cluster categories (Bcluster)
@@ -298,6 +320,21 @@ table(copus$Layout, copus$Bcluster) # base, returns table in wide form
 
 # Task 5 ------------------------------------------------------------------
 
+#1 
+copus.m <- group_by(copus, `Instructor ID`)
+#copus.m <- group_by(copus, 'Instructor ID') # wrong quotes: `` versus ''
+copus.t <- tally(copus.m)
+copus.t <- summarize(copus.m, Count = n())
+copus.t <- filter(copus.t, !is.na(`Instructor ID`))
+mean(copus.t$Count)
+summarize(copus.t, Avg = mean(Count),
+          Min = min(Count),
+          Max = max(Count))
+
+copus.m <- group_by(copus, Size)
+msvars <- summarize(copus.m, across(L:T_O, c(mean, sd))) # all in one
+summarize(copus.m, across(L:T_O, mean)) # copmute mean
+summarize(copus.m, across(L:T_O, sd)) # compute sd
 
 # II.4 The Pipe -----------------------------------------------------------
 
@@ -321,6 +358,23 @@ copus %>%
 copus <- copus %>%
   ungroup() # end this section by ungrouping as it could affect code later on
 
+copus.m <- group_by(copus, `Instructor ID`)
+copus.t <- summarize(copus.m, Count = n())
+copus.t <- filter(copus.t, !is.na(`Instructor ID`))
+summarize(copus.t, Avg = mean(Count),
+          Min = min(Count),
+          Max = max(Count))
+
+copus %>%
+  group_by(`Instructor ID`) %>%
+  summarize(Count = n()) %>%
+  filter(!is.na(`Instructor ID`)) %>%
+  summarize(Avg = mean(Count),
+            Min = min(Count),
+            Max = max(Count))
+
+# Feb 15
+
 # Task 6 ------------------------------------------------------------------
 
 
@@ -328,16 +382,23 @@ copus <- copus %>%
 
 
 # II.5 Pivoting data ------------------------------------------------------
-copus %>% # take copus, then...
+copus.m <- copus %>% # take copus, then...
   select(Broader, Lec:T_O) %>%     # select only the variables that need to be pivoted
   pivot_longer(-Broader, "InsBeh") # pivot, noting that Broader is a "key" variable, name new variable "InsBeh"
 
-# summarize way:
+# compute average of L:T_O by Broader: WIDE way
 copus %>%
   group_by(Broader) %>%          # group by Broader
   summarize(across(L:T_O, mean)) # take average of 25 variables
 
-# using pivot:
+# compute average of L:T_O by Broader: Long way
+copus %>%
+  select(Broader, Lec:T_O) %>%   # select only vars for pivoting
+  pivot_longer(-Broader, "InsBeh") %>% # pivot to long form, using Broader as a discipline
+  group_by(Broader, InsBeh) %>%          # group by Broader
+  summarize(Avg = mean(value)) # take average of 25 variables
+
+# using pivot to reformat data for plotting:
 copus.l <- copus %>% # define into new object
   select(Broader, CG:OG) %>%          # select only variables of interest
   pivot_longer(-Broader, "GroupWork") # pivot into long form
@@ -401,7 +462,7 @@ res <- copus %>%
   select(`Instructor ID`:Year, L:Bcluster)
 
 res %>%
-  right_join(dem) # clearly, something very wrong happened here (79,234 observations?!)
+  left_join(dem) # clearly, something very wrong happened here (79,814 observations?!)
 
 # What happened? Consider a simpler dataset from: https://stackoverflow.com/questions/49256920/left-join-in-r-dplyr-too-many-observations
 df1 <- data.frame(col1 = LETTERS[1:4],
@@ -432,7 +493,7 @@ dem <- copus.obs %>%
 
 # create the res object:
 res <- copus.obs %>%
-  select(Obs, L:Bcluster)
+  select(Obs, `Instructor ID`:Year, L:Bcluster)
 
 # now I'm ready to join:
 
@@ -453,8 +514,6 @@ res %>%
   left_join(dem) %>%     # joins the data, adding the Broader variable
   filter(is.na(Broader)) # anyone with NA is a bio faculty here
 
-
-
 # II.7 Strings -----------------------------------------------------------------
 
 string1 <- "This is a string"
@@ -470,7 +529,8 @@ x <- "I want a\nnew line"
 x
 writeLines(x)
 
-x <- c("Celebrate", "good", "times", "come", "on!", NA)
+x <- c("Celebrate", "good", "times", "come", "on!", NA) # mimics applying function down a variable
+# mimics applying function across variables (rows)
 w1 <- "Celebrate"
 w2 <- "good"
 w3 <- "times"
@@ -485,8 +545,8 @@ paste(w1, w2, w3, w4, w5, w6) # combine multiple strings into 1
 str_c(w1, w2, w3, w4, w5, w6) # alternative, except for how it handles NA
 str_c(w1, w2, w3, w4, w5, sep = "/") # combine multiple strings into 1 with custom separator
 
-paste(x, collapse = " ") # combine 1 vector of strings into 1 string
-str_c(x, collapse = " ") #alternative, except how it handles NA
+paste(x, collapse = "") # combine 1 vector of strings into 1 string
+str_c(x, collapse = "") #alternative, except how it handles NA
 
 # PREDICT: Strings are still vectorized. What will this do?
 str_c("Hey!", x)
@@ -503,7 +563,7 @@ str_sort(x) # alphabetize
 str_sort(x, locale = "Haw") # alphabetize to the Hawaiian alphabet
 
 # Matching characters in a string
-
+x
 str_detect(x, "me") # find which strings have "me" anywhere
 str_detect(x, ".o.") # find any strings that have an "o" sandwhiched between any characters
 str_detect(x, "o.") # find any strings that have an "o" with any character that follows
@@ -513,6 +573,8 @@ str_detect(x, "^t") # find any strings that start with "t"
 str_detect(x, "[aeiou]$") # find any strings that end in a vowel
 str_detect(x, "[aei]") # find any strings that have a, e, or i anywhere
 !str_detect(x, "[aei]") # find any strings that DO NOT have a, e, or i anywhere
+
+# March 1
 
 # Splitting
 x <- str_c(x, collapse = " ") # collapse the vector of strings into 1 string
