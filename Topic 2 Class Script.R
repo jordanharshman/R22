@@ -701,6 +701,310 @@ ggplot(mod1.res, aes(x = Broader, y = Residuals)) +
 # Seem to slightly under-predicting chemistry and biology while perhaps over-predicting
 # math. Quite subjective, but helpful. 
 
+# March 3
+
+# Added new: It seems you were all interested in this discussion: let's carry it out further:
+
+# Check all assumptions of linear regression:
+# https://towardsdatascience.com/assumptions-of-linear-regression-fdb71ebeaa8b
+
+# Assumption 1: Independence (theoretical)
+# Yes, these are independent observations... sort of. The COPUS protocol pretty much mandates that everytime
+# Lec is coded, L should be as well. Just depends on how much weight you put on the word "should" (does it "have to"
+# be coded?) to determine if they are truly independent.
+
+# Assumption 2: No Missing Variables
+# This doesn't refer to NA's in the data, it refers the theory again. If we are predicting how often students
+# are listening (L) during class, are there any other relevant variables that should predict this information besides
+# Lec? For example, lit shows class size makes a big difference here, maybe class level too, so we should likely expand
+# our model, but won't for the sake of examplication here.
+
+# Assumption 3: Linear relationship expected.
+# We can check if it's reasonable to expect a linear relationship by plotting the data, which we did already:
+
+ggplot(copus, aes(x = Lec, y = L)) +
+  geom_point()
+
+# Overplotting is a concern, let's jitter these slightly (we'll discuss this more):
+
+ggplot(copus, aes(x = Lec, y = L)) +
+  geom_jitter(height = 2, width = 2, alpha = .25)
+
+# Linear relationship at high end, random at low end. To more adequately scale these, you can consider transformations.
+# For example, the issue is that you will have high residuals at the low end of the scale and low at the high end. If
+# you take the square root of L and Lec, that will decrease these residuals. Example of the data and residual plot
+# for raw data and transformed data below:
+
+# make plot, raw (untransformed) data:
+ggplot(copus, aes(x = Lec, y = L)) +
+  geom_jitter(height = 2, width = 2, alpha = .25)
+
+mod1 <- lm(L ~ Lec, data = copus) # to compute residuals for us
+
+copus.t <- copus %>%
+  mutate(Resid.raw = mod1$residuals) # make variable with residuals
+
+# make residual plot, raw (untransformed) data:
+ggplot(copus.t, aes(x = Lec, y = Resid.raw)) +
+  geom_jitter(height = 2, width = 2, alpha = .25)
+
+# cone, not good!
+
+copus.t <- copus.t %>%
+  mutate(sqL = sqrt(L),     # transform L
+         sqLec = sqrt(Lec)) # transform Lec
+
+# make plot, raw (transformed) data:
+ggplot(copus.t, aes(x = sqLec, y = sqL)) +
+  geom_jitter(height = 2, width = 2, alpha = .25)
+
+mod1.t <- lm(sqL ~ sqLec, data = copus.t) # to compute residuals for us
+
+copus.t <- copus.t %>%
+  mutate(Resid.t = mod1.t$residuals) # make variable with residuals
+
+# make residual plot, (transformed) data:
+ggplot(copus.t, aes(x = Lec, y = Resid.t)) +
+  geom_jitter(height = 2, width = 2, alpha = .25)
+
+# Much less severe cone, better to do regression with.
+
+# Assumption 4: Normality of residuals
+# Technically, linear regression requires normality of residuals, but it never hurts to
+# look at normality of your raw/transformed data as well. We'll tackle these separately.
+
+# Check normality of RAW (UNTRANSFORMED) DATA:
+# visually:
+# (example of data manipulation for purpose of making a visual)
+copus.l <- copus %>%
+  select(L, Lec) %>%
+  pivot_longer(everything(), names_to = "Behavior", values_to = "Percent")
+
+# make a plot
+ggplot(copus.l, aes(x = Percent, fill = Behavior)) +
+  geom_histogram(bins = 50) +
+  facet_wrap(~Behavior) +
+  scale_x_continuous(limits = c(0,102))
+
+# does not look normally distributed to me
+# descriptively:
+library(moments)
+
+skewness(copus$L)
+kurtosis(copus$L)
+
+skewness(copus$Lec)
+kurtosis(copus$Lec)
+
+# lolz, no
+# inferentially test for normality:
+# Shapiro Wilks:
+shapiro.test(copus$L)
+shapiro.test(copus$Lec)
+
+# Both significant difference from a normal distribution, so we CANNOT assume normality
+
+# Anderson-Darling:
+library(nortest)
+ad.test(copus$L)
+ad.test(copus$Lec)
+
+# Both significant difference from a normal distribution, so we CANNOT assume normality
+
+# Now we repeat the entire process for the transformed data:
+
+# Check normality of TRANSFORMED DATA:
+# visually:
+# (example of data manipulation for purpose of making a visual)
+copus.lt <- copus.t %>%
+  select(sqL, sqLec) %>%
+  pivot_longer(everything(), names_to = "Behavior", values_to = "Percent")
+
+# make a plot
+ggplot(copus.lt, aes(x = Percent, fill = Behavior)) +
+  geom_histogram(bins = 50) +
+  facet_wrap(~Behavior) 
+
+# does not look normally distributed to me
+# descriptively:
+skewness(copus.t$sqL)
+kurtosis(copus.t$sqL)
+
+skewness(copus.t$sqLec)
+kurtosis(copus.t$sqLec)
+
+# lolz, much no, such non-normal
+# inferentially test for normality:
+# Shapiro Wilks:
+shapiro.test(copus.t$sqL)
+shapiro.test(copus.t$sqLec)
+
+# Both significant difference from a normal distribution, so we CANNOT assume normality
+
+# Anderson-Darling:
+ad.test(copus.t$sqL)
+ad.test(copus.t$sqLec)
+
+# ... Phew... all that and still we HAVE NOT tested the normality of the residuals, which is
+# the actual assumption in a linear regression. Let's do that. We know we can get the crappy plot
+# from base R:
+
+plot(mod1)
+
+# Let's make it better. Recall copus.t already has Resid.raw and Resid.t in it, but we need to add the q-q.
+# First, base R offers a solution:
+
+qqnorm(mod1$residuals)
+abline(qqline(mod1$residuals))
+
+# ... but it's ugly. So let's steal the data that it produced and make a better one:
+
+# First need to calculate qq based on theoretical normal distribtion with same average residuals. We will then
+# grab the slope/intercept from this straight line:
+normqq <- rnorm(nrow(copus), mean(mod1$residuals), sd(mod1$residuals)) # create data
+qqnorm(normqq) # verify it's normal
+df <- qqnorm(normqq) %>% # store in df
+  as.tibble()
+coefs <- lm(y ~ x, data = df)$coefficients # grab slope/intercept
+
+# Now, do the same for the actual data. 
+
+qqmod1 <- qqnorm(mod1$residuals) %>%
+  as.tibble() # convert from list to tibble
+
+ggplot(qqmod1, aes(x = x, y = y)) +
+  geom_point() +
+  geom_abline(slope = coefs[2], intercept = coefs[1])
+
+# Comparing the two reveals I took a different approach to computing qq plot.
+# And now do the same but for the TRANSFORMED data:
+
+normqq <- rnorm(nrow(copus), mean(mod1.t$residuals), sd(mod1.t$residuals)) # create data
+qqnorm(normqq) # verify it's normal
+df <- qqnorm(normqq) %>% # store in df
+  as.tibble()
+coefs <- lm(y ~ x, data = df)$coefficients # grab slope/intercept
+
+# Now, do the same for the actual data. 
+
+qqmod1.t <- qqnorm(mod1.t$residuals) %>%
+  as.tibble() # convert from list to tibble
+
+ggplot(qqmod1.t, aes(x = x, y = y)) +
+  geom_point() +
+  geom_abline(slope = coefs[2], intercept = coefs[1])
+
+# Assumption 5 No/Little Multicollinearity
+# Only applicable with multiple regression.
+
+# Assumption 6: Homoscedasticity
+# Everyone's favorite word. We can get this in base R plot:
+
+plot(mod1)
+
+# Let's make it better. Recall copus.t already has Resid.raw and Resid.t in it. Base R plots the resids
+# against the fitted values, so we'll need to add these:
+
+copus.t <- copus.t %>%
+  mutate(Fit.raw = mod1$fitted.values,
+         Fit.t = mod1.t$fitted.values)
+
+# RAW, UNTRANSFORMED:
+
+# reproduce the base R plot:
+ggplot(copus.t, aes(x = Fit.raw, y = Resid.raw)) +
+  geom_jitter(height = 2, width = 2, alpha = .25)
+
+# plot raw data scaled by residual:
+ggplot(copus.t, aes(x = Lec, y = L, color = Resid.raw)) +
+  geom_jitter(height = 2, width = 2, alpha = .8) +
+  scale_color_gradient2(low = "#f02213", mid = "grey80", high = "#f02213") +
+  theme_bw()
+
+# can really see how many people are not being well-predicted by this model.
+
+# TRANSFORMED:
+
+# reproduce the base R plot:
+ggplot(copus.t, aes(x = Fit.t, y = Resid.t)) +
+  geom_jitter(height = 2, width = 2, alpha = .25)
+
+# plot raw data scaled by residual:
+ggplot(copus.t, aes(x = sqLec, y = sqL, color = Resid.t)) +
+  geom_jitter(height = 2, width = 2, alpha = .8) +
+  scale_color_gradient2(low = "#f02213", mid = "grey80", high = "#f02213") +
+  theme_bw()
+
+# Assumption 7: IVs uncorrelated with Error Terms
+# Ensure that IV is not correlated with residual:
+
+# RAW UNTRANSFORMED:
+ggplot(copus.t, aes(x = Lec, y = Resid.raw)) +
+  geom_jitter(height = 2, width = 2, alpha = .25)
+
+# RAW UNTRANSFORMED:
+ggplot(copus.t, aes(x = sqLec, y = Resid.raw)) +
+  geom_jitter(height = 2, width = 2, alpha = .25)
+
+# Assumption 8: Observations are uncorrelated with error terms.
+# This means if you plot all residuals, there shouldn't be any patterns. Base R (ugly):
+plot(mod1$residuals, type = "l")
+
+# Prettier:
+resids <- tibble(Raw = mod1$residuals,
+                 Transformed = mod1.t$residuals,
+                 Index = 1:nrow(copus.t))
+
+ggplot(resids, aes(x = Index, y = Raw)) +
+  geom_line()
+
+ggplot(resids, aes(x = Index, y = Transformed)) +
+  geom_line()
+
+# This just does random order. I would say you should order your data by another potential variable
+# first to see if that variable perhaps should be included. For example, I theorize that the model of
+# L ~ Lec is dependent on:
+#  - Broader
+#  - Level
+#  - Size
+#  - Layout
+#  - Cluster
+#  - Bcluster
+# Let's find out by looping (advanced). There are MUCH cleaner ways to do this, but this works:
+
+cats <- c("Broader", "Level", "Size", "Layout", "Cluster", "Bcluster")
+for(cat in cats){
+  resids <- tibble(Raw = mod1$residuals,
+                   Transformed = mod1.t$residuals,
+                   Cat = pull(copus.t[, match(cat, names(copus.t))])) %>%
+    arrange(Cat, Raw) %>%
+    mutate(Index = 1:n())
+  
+  print(
+    ggplot(resids, aes(x = Raw, fill = as.character(Cat))) +
+      geom_density() +
+      geom_vline(aes(xintercept = 0)) +
+      xlab("Residual") +
+      facet_wrap(~Cat, scales = "free_y"))
+}
+
+# How about all the other 23 COPUS variables???
+vars <- names(copus %>% select(L:T_O, -L, -Lec))
+for(var in vars){
+  resids <- tibble(Raw = mod1$residuals,
+                   Transformed = mod1.t$residuals,
+                   Var = pull(copus.t[, match(var, names(copus.t))])) %>%
+    arrange(Var) %>%
+    mutate(Index = 1:n())
+  
+  print(
+    ggplot(resids, aes(x = Index, y = Raw, color = Var)) +
+      ggtitle(var) +
+      geom_point(size = .2) +
+      geom_line())
+  
+}
+
 # That was fun! What else is stored in mod1? See the documentation under "Values" to determine
 # what is being presented to you in each of the commands:
 ?lm # see "Values" section which provides details about the values being provided
