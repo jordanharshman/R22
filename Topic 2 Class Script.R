@@ -751,14 +751,13 @@ ggplot(copus.t, aes(x = Lec, y = Resid.raw)) +
 # cone, not good!
 
 copus.t <- copus.t %>%
-  mutate(sqL = sqrt(L),     # transform L
-         sqLec = sqrt(Lec)) # transform Lec
+  mutate(sqL = sqrt(L))     # transform L
 
 # make plot, raw (transformed) data:
-ggplot(copus.t, aes(x = sqLec, y = sqL)) +
+ggplot(copus.t, aes(x = Lec, y = sqL)) +
   geom_jitter(height = 2, width = 2, alpha = .25)
 
-mod1.t <- lm(sqL ~ sqLec, data = copus.t) # to compute residuals for us
+mod1.t <- lm(sqL ~ Lec, data = copus.t) # to compute residuals for us
 
 copus.t <- copus.t %>%
   mutate(Resid.t = mod1.t$residuals) # make variable with residuals
@@ -817,33 +816,33 @@ ad.test(copus$Lec)
 # visually:
 # (example of data manipulation for purpose of making a visual)
 copus.lt <- copus.t %>%
-  select(sqL, sqLec) %>%
+  select(sqL, Lec) %>%
   pivot_longer(everything(), names_to = "Behavior", values_to = "Percent")
 
 # make a plot
 ggplot(copus.lt, aes(x = Percent, fill = Behavior)) +
   geom_histogram(bins = 50) +
-  facet_wrap(~Behavior) 
+  facet_wrap(~Behavior, scales = "free_x") 
 
 # does not look normally distributed to me
 # descriptively:
 skewness(copus.t$sqL)
 kurtosis(copus.t$sqL)
 
-skewness(copus.t$sqLec)
-kurtosis(copus.t$sqLec)
+skewness(copus.t$Lec)
+kurtosis(copus.t$Lec)
 
 # lolz, much no, such non-normal
 # inferentially test for normality:
 # Shapiro Wilks:
 shapiro.test(copus.t$sqL)
-shapiro.test(copus.t$sqLec)
+shapiro.test(copus.t$Lec)
 
 # Both significant difference from a normal distribution, so we CANNOT assume normality
 
 # Anderson-Darling:
 ad.test(copus.t$sqL)
-ad.test(copus.t$sqLec)
+ad.test(copus.t$Lec)
 
 # ... Phew... all that and still we HAVE NOT tested the normality of the residuals, which is
 # the actual assumption in a linear regression. Let's do that. We know we can get the crappy plot
@@ -885,7 +884,7 @@ df <- qqnorm(normqq) %>% # store in df
   as.tibble()
 coefs <- lm(y ~ x, data = df)$coefficients # grab slope/intercept
 
-# Now, do the same for the actual data. 
+# Now, do the same for the transposed data. 
 
 qqmod1.t <- qqnorm(mod1.t$residuals) %>%
   as.tibble() # convert from list to tibble
@@ -916,7 +915,7 @@ ggplot(copus.t, aes(x = Fit.raw, y = Resid.raw)) +
   geom_jitter(height = 2, width = 2, alpha = .25)
 
 # plot raw data scaled by residual:
-ggplot(copus.t, aes(x = Lec, y = L, color = Resid.raw)) +
+ggplot(copus.t, aes(x = Fit.raw, y = L, color = Resid.raw)) +
   geom_jitter(height = 2, width = 2, alpha = .8) +
   scale_color_gradient2(low = "#f02213", mid = "grey80", high = "#f02213") +
   theme_bw()
@@ -930,7 +929,7 @@ ggplot(copus.t, aes(x = Fit.t, y = Resid.t)) +
   geom_jitter(height = 2, width = 2, alpha = .25)
 
 # plot raw data scaled by residual:
-ggplot(copus.t, aes(x = sqLec, y = sqL, color = Resid.t)) +
+ggplot(copus.t, aes(x = Fit.t, y = sqL, color = Resid.t)) +
   geom_jitter(height = 2, width = 2, alpha = .8) +
   scale_color_gradient2(low = "#f02213", mid = "grey80", high = "#f02213") +
   theme_bw()
@@ -942,8 +941,8 @@ ggplot(copus.t, aes(x = sqLec, y = sqL, color = Resid.t)) +
 ggplot(copus.t, aes(x = Lec, y = Resid.raw)) +
   geom_jitter(height = 2, width = 2, alpha = .25)
 
-# RAW UNTRANSFORMED:
-ggplot(copus.t, aes(x = sqLec, y = Resid.raw)) +
+# RAW TRANSFORMED:
+ggplot(copus.t, aes(x = Lec, y = Resid.t)) +
   geom_jitter(height = 2, width = 2, alpha = .25)
 
 # Assumption 8: Observations are uncorrelated with error terms.
@@ -1002,7 +1001,6 @@ for(var in vars){
       ggtitle(var) +
       geom_point(size = .2) +
       geom_line())
-  
 }
 
 # That was fun! What else is stored in mod1? See the documentation under "Values" to determine
@@ -1030,7 +1028,8 @@ mod2$coefficients # compare to the coefs of mod2
 mod3$coefficients # same thing for mod3
 
 # What is a residual in an anova? Plot to see predicted average per group:
-pred.avg <- tibble(Size = c("Small", "Medium", "Large", NA),
+# LAZY CODING!
+pred.avg <- tibble(Size = c("Large", "Medium", "Small", NA),
                    Lec = mod2$fitted.values[c(1, 86, 94, 106)])
 ggplot(copus, aes(x = Size, y = Lec)) + 
   geom_boxplot() +
