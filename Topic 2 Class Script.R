@@ -1019,7 +1019,7 @@ mod2 <- aov(Lec ~ Size, data = copus) # model anova between Lec (DV) and Size (I
 summary(mod2) # all APA reporting needs
 names(mod2)   # see what objects are available
 ?aov          # "Values" section is a bit sparse, so we're out of luck! found this online though:
-              # https://docs.tibco.com/pub/enterprise-runtime-for-R/4.4.0/doc/html/Language_Reference/stats/aov.object.html
+# https://docs.tibco.com/pub/enterprise-runtime-for-R/4.4.0/doc/html/Language_Reference/stats/aov.object.html
 
 # Normally we think of anova as separate from linear models, but really they are the same.
 mod3 <- lm(Lec ~ Size, data = copus) # define as linear model
@@ -1045,7 +1045,7 @@ mod2.res <- copus %>%
 # We will have to do the same:
 mod2.res <- copus %>%
   filter(!is.na(Size), !is.na(Lec)) %>%
-  mutate(Residuals = mod2$residuals) # why didn't this work?
+  mutate(Residuals = mod2$residuals) 
 
 # plot results
 ggplot(mod2.res, aes(x = Size, y = Residuals)) +
@@ -1070,5 +1070,3 @@ mod5 <- aov(Lec ~ Size*Layout, data = copus.lay) # shorthand for all main effect
 
 # we'll just interpret mod5:
 summary(mod5) # Results: main effects significant; interaction not significant
-
-
