@@ -58,7 +58,7 @@ ggplot(copus.ds, aes(x = Size, y = AvgLec.c, fill = Broader)) +
   scale_y_continuous(breaks = seq(-6, 6, 2), 
                      name = "Centered Average Lecture") +       # CHANGE: place a y-axis label
   scale_x_discrete(name = "Class Size")
-# + ylab("Centered Average Lecture")                            # Quicker alternative
+# + ylab("Centered Average Lecture") + xlab("Class Size")       # Quicker alternative
 
 # Reorder the x-axis
 copus.ds <- copus.ds %>%                                      # CHANGE: need to manipulate before plotting
@@ -70,6 +70,8 @@ ggplot(copus.ds, aes(x = Size, y = AvgLec.c, fill = Broader)) +
   scale_y_continuous(breaks = seq(-6, 6, 2), 
                      name = "Centered Average Lecture") +       
   scale_x_discrete(name = "Class Size")
+
+### March 22
 
 # Expand label on x-axis to be more descriptive
 ggplot(copus.ds, aes(x = Size, y = AvgLec.c, fill = Broader)) + 
@@ -88,7 +90,7 @@ ggplot(copus.ds, aes(x = Size, y = AvgLec.c, fill = Broader)) +
                    name = "Class Size") +
   theme(axis.text.x = element_text(color = "red"))            # CHANGE: make x-axis red font; we'll talk about colors
 
-# Ditch the legend
+# Move the legend
 ggplot(copus.ds, aes(x = Size, y = AvgLec.c, fill = Broader)) + 
   geom_col(position = "dodge", width = .5) +
   scale_y_continuous(breaks = seq(-6, 6, 2), 
@@ -376,7 +378,7 @@ ggplot(copus, aes(x = Lec, y = L)) +
 
 # geom_smooth
 ggplot(copus, aes(x = Lec, y = L)) +
-  geom_smooth() # loess smooth by default, use method = lm for y=mx+b
+  geom_smooth(method = "lm", se = FALSE) # loess smooth by default, use method = lm for y=mx+b
 
 # geom_smooth()
 ggplot(copus, aes(x = Lec, y = L)) +
@@ -397,7 +399,8 @@ ggplot(copus, aes(x = Broader)) +
     tally()
   
   ggplot(Disciplines, aes(x = Broader)) +
-    geom_bar() # obviously incorrect, counted 1 of everything!
+    geom_bar() + # obviously incorrect, counted 1 of everything!
+    ylab("Whatever")
   
   ggplot(Disciplines, aes(x = Broader, y = n)) +
     geom_bar() # error, can't have a y variable
@@ -405,6 +408,8 @@ ggplot(copus, aes(x = Broader)) +
   ggplot(Disciplines, aes(x = Broader, y = n)) +
     geom_bar(stat = "identity") # tells it not to calculate it's own counts
 
+# March 24
+  
 # geom_histogram()
 ggplot(copus, aes(x = RTW)) +
   geom_histogram() # basic histogram
@@ -589,7 +594,7 @@ ggplot(copus, aes(x = Lec, y = RTW, color = L)) +
 
 # III.7 hjust / vjust -----------------------------------------------------
 
-
+# https://stackoverflow.com/questions/7263849/what-do-hjust-and-vjust-do-when-making-a-plot-using-ggplot
 
 # III.8 Exporting Graphs --------------------------------------------------
 
