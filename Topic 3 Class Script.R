@@ -435,8 +435,9 @@ errbar <- copus %>%
   mutate(high = Avg + Sd,
          low = Avg - Sd)
 
-ggplot(errbar, aes(x = "RTW", ymin = low, ymax = high)) + # need a few more aesthetics
-  geom_errorbar() # plot the errorbar
+ggplot(errbar, aes(x = "RTW", y = Avg, ymin = low, ymax = high)) + # need a few more aesthetics
+  geom_errorbar() + # plot the errorbar
+  geom_point(size = 4)
 
 # geom_line()
 # filter out Ins 8 and create a dummy obs 1:number of rows
@@ -496,6 +497,11 @@ ggplot(copus.size, aes(x = Lec)) +
   geom_histogram() +
   facet_wrap(~Size)
 
+# "free the scales"
+ggplot(copus.size, aes(x = Lec)) +
+  geom_histogram() +
+  facet_wrap(~Size, scales = "free_y")
+
 # generate density plot for each cluster
 ggplot(copus, aes(x = Lec)) +
   geom_density(fill = "grey50") +
@@ -520,17 +526,17 @@ ggplot(copus.m, aes(x = Cluster, fill = Cluster)) +
   geom_bar() +
   guides(fill = "none") # alternative way to remove a legend
 
-# Add first facet:
 ggplot(copus.m, aes(x = Cluster, fill = Cluster)) +
   geom_bar() +
   guides(fill = "none") +
-  facet_wrap(~Broader) # facet by discipline
+  # "broken down by: Size
+  facet_wrap(~Size)
 
-# Add second facet:
 ggplot(copus.m, aes(x = Cluster, fill = Cluster)) +
   geom_bar() +
   guides(fill = "none") +
-  facet_wrap(Size~Broader, scales = "free_y", nrow = 3) # facet by discipline
+  facet_wrap(~Broader)
+
 
 # contrast to facet_grid(); you can only free the scales by row (or by column), 
 # you can't completely free all scales
@@ -553,7 +559,6 @@ ggplot(copus.m, aes(x = Broader, fill = Cluster)) + # CHANGE: plot discipline on
   theme(axis.text.x = element_text(a = 270, hjust = 0, vjust = .25)) # rotate the x-axis labels
 
 # Task 1 ------------------------------------------------------------------
-
 
 
 # III.7 Plot details: Colors ------------------------------------------------------
@@ -590,11 +595,14 @@ ggplot(LecBC, aes(x = Broader, y = Lec, fill = Broader, color = Broader)) +
 
 ggplot(copus, aes(x = Lec, y = RTW, color = L)) +
   geom_jitter() +
-  theme_bw() 
+  theme_bw() +
+  scale_color_grey()
 
 # III.7 hjust / vjust -----------------------------------------------------
 
 # https://stackoverflow.com/questions/7263849/what-do-hjust-and-vjust-do-when-making-a-plot-using-ggplot
+
+# March 29
 
 # III.8 Exporting Graphs --------------------------------------------------
 
