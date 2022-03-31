@@ -623,7 +623,7 @@ ggsave("boxLec_disc_low.png",
        units = "px",
        dpi = 72)
 
-# 600 dpi, large image (5 kb)
+# 600 dpi, large image (83 kb)
 ggsave("boxLec_disc_high.png",
        height = 214 * 8.33,
        width = 518 * 8.33,
