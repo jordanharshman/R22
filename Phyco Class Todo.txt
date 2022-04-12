@@ -1,0 +1,16 @@
+Phyco Class Todo:
+
+1. Cleaning:
+ - Treatment, Phycocyanin (AB), Enclosure, Interval, Temp, Secchi (cm), DO (mg/L)
+ - Rename: 
+  - Interval = Time
+  - Enclosure = ID
+  - Phycocyanin (ug/L) = PC 
+  - Secchi (cm) = Secchi
+  - Treatment = Tx
+  - DO (mg/L) = DO
+ - Within ID, "Community-1" change it to a number 1
+ - Get rid of any "Pond" data
+ - Time: turn to numeric days
+ - Turn PC back into numeric, replace "n/a" with NA
+ - filter out 2hr (missing from what we need)
