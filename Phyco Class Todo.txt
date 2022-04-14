@@ -14,3 +14,7 @@ Phyco Class Todo:
  - Time: turn to numeric days
  - Turn PC back into numeric, replace "n/a" with NA
  - filter out 2hr (missing from what we need)
+ 
+ 2. Exploration
+ 
+- 
