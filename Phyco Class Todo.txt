@@ -16,5 +16,12 @@ Phyco Class Todo:
  - filter out 2hr (missing from what we need)
  
  2. Exploration
- 
-- 
+- Distributions: Phycocyanin, Secchi, verify the logical pieces
+  - histograms Phyco
+  
+ - Relationships
+ - avgs & std's()
+  - Days(x) Phyco (y) Treatment (color)
+  - Days(x) Phyco (y) Treatment (facetted)
+  - Secci (x) Phyco(y) Treatmetn (color)
+  - correlations pairwise 
