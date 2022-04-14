@@ -3,7 +3,7 @@ Phyco Class Todo:
 1. Cleaning:
  - Treatment, Phycocyanin (AB), Enclosure, Interval, Temp, Secchi (cm), DO (mg/L)
  - Rename: 
-  - Interval = Time
+  - Interval = Day
   - Enclosure = ID
   - Phycocyanin (ug/L) = PC 
   - Secchi (cm) = Secchi
