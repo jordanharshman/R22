@@ -25,3 +25,12 @@ Phyco Class Todo:
   - Days(x) Phyco (y) Treatment (facetted)
   - Secci (x) Phyco(y) Treatmetn (color)
   - correlations pairwise 
+
+- add TN (total nitrogen)
+
+
+3. Analysis:
+- Baseline model PC ~ 1
+- RM ANOVA: PC ~ Treatment + |Day
+  - Posthocs comparisons NO3 - C NH4 - C Urea - C + ...
+- Ideally keep variability, but avoid crowdedness
