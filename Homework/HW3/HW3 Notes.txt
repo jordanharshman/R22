@@ -1,0 +1,17 @@
+Didn't notice the dashed vertical lines in the histogram that require geom_abline()
+
+Color vs Fill aes
+
+Lots of folks added coord_flip() which is fine, but then you would need to swap the x and y axis for the mtcars boxplots
+
+On the coding section, running into the problem of copus.1 copus.2... etc. Find solutions to avoid this if you can.
+
+Continuing the pipe onto the plot; separate these. For example,
+
+copus1 <- copus %>%
+  filter(!is.na(Size))
+
+ ggplot(copus1, aes(x = Size)) +
+    geom_bar()
+
+dpi doesn't mean anything for a vector file specified in inches

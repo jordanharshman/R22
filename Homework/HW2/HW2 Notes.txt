@@ -1,0 +1,22 @@
+Be careful with dplyr::filter(): Many thought the comma represents "and" when it actually represents "then". The exercise asked what this line will do:
+
+filter(!is.na(Size), Level == "100") 
+
+...which filters out any NA from Size regardless of Level, "then" keeps only Level == 100. In this particular example, it doesn't matter which one you use, but in other examples, your precision of language will be important. For example, some of you wrote "filters out and nas from the Size variable at the 100 Level" or "filtering the NAs out of Size only when the Level is 100", which I interpret as you are trying to filter out any NA if and only if the Level equals "100", therefore leaving everything else (very different task). 
+
+Also, the question about getting the cov matrix cause trouble. Recall that you can do ?glht() to see what values are accessible. Sometimes a summary(...) will give you what you need; othertimes it won't and you'll have to access it in other ways.
+
+Coding the key and joining to df in #4 of the coding. The key dataset follows a specific pattern and does not need to be defined based on df. If you make the key object based on df, that's like determining what grades are possible based on a the grades of a stack of homework; you set what grades are possible first, then assign them to the homework.
+
+ggplot() relabeling led to several silent errors in the last question. Remember that you need to swap the data and the labels, not just the labels! The only way to do this is by making the Bcluster variable a factor (data manipulation).
+
+What happened in #2 that everyone decided to define df2 all the way to group_by(V1) but then randomly decided to stop piping and list a seperate summarize() function? 
+
+Can condense mutate(V2 = abs(V2), V3 = abs(V3)...) into mutate(across(V2:V6, abs))
+
+
+
+
+
+
+
