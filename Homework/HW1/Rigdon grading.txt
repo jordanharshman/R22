@@ -1,4 +1,0 @@
-Covid Rigdon HW 1
-
-2. You did not explain how R came up with the answers? -1
-5. What is a "variable that cannot be added?" It is one element of the vector that turns the whole vector into a character vector -1
